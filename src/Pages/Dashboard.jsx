@@ -1,9 +1,10 @@
 import React from 'react';
+import TaskBoard from '../Components/TaskBoard';
 
 const Dashboard = () => {
   return (
     <div>
-      <p>deshboard</p>
+      <TaskBoard></TaskBoard>
     </div>
   );
 };

@@ -7,7 +7,7 @@ const Home = () => {
     <div>
       <Navbar></Navbar>
 
-      <div className="w-11/12 mx-auto my-10">
+      <div className="w-11/12 mx-auto my-20">
         <Outlet></Outlet>
       </div>
     </div>

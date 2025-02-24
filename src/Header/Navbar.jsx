@@ -3,14 +3,13 @@ import { Link, NavLink } from 'react-router-dom';
 import { authContext } from '../Context/AuthProvider';
 
 const Navbar = () => {
+  const { user, LogOutUser } = useContext(authContext);
+
   const Links = (
     <div className="flex flex-col md:flex-row items-center gap-5">
-      <NavLink to="/addTasks">Add_Tasks</NavLink>
-      <NavLink to="/dashboard">Dashboard</NavLink>
+      {user && <NavLink to="/dashboard">Dashboard</NavLink>}
     </div>
   );
-
-  const { user, LogOutUser } = useContext(authContext);
 
   const handleLogOut = () => {
     LogOutUser()
