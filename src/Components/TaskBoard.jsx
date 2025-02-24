@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FilePenLine, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const fetchTasks = async () => {
   const res = await fetch('http://localhost:3000/tasks');
@@ -18,6 +19,7 @@ const TaskBoard = () => {
     data: tasksData,
     isLoading,
     error,
+    refetch,
   } = useQuery({ queryKey: ['tasks'], queryFn: fetchTasks });
 
   // **Optimistic State**
@@ -109,17 +111,30 @@ const TaskBoard = () => {
       text: "You won't be able to revert this!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
+      confirmButtonColor: '#4dfed1',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, delete it!',
     }).then(result => {
       if (result.isConfirmed) {
-        console.log(ID);
-        Swal.fire({
-          title: 'Deleted!',
-          text: 'Your file has been deleted.',
-          icon: 'success',
-        });
+        axios
+          .delete(`http://localhost:3000/tasks/${ID}`)
+          .then(res => {
+            console.log(res.data);
+            if (res.data.deletedCount > 0) {
+              Swal.fire({
+                title: 'Deleted!',
+                text: 'Your file has been deleted.',
+                icon: 'success',
+                confirmButtonColor: '#4dfed1',
+              });
+              refetch();
+            }
+          })
+          .catch(error => {
+            console.log(error.message);
+          });
+
+        // console.log(ID);
       }
     });
   };
@@ -172,11 +187,18 @@ const TaskBoard = () => {
                                 Created Tasks:{' '}
                                 {new Date(task.timestamp).toLocaleString()}
                               </p>
-                              {task.updateTime && (
-                                <p className="text-sm text-blue-500">
-                                  Updated Tasks:{' '}
-                                  {new Date(task.updateTime).toLocaleString()}
-                                </p>
+                              {task?.category !== 'todo' && (
+                                <>
+                                  {' '}
+                                  {task.updateTime && (
+                                    <p className="text-sm text-blue-500">
+                                      Updated Tasks:{' '}
+                                      {new Date(
+                                        task.updateTime
+                                      ).toLocaleString()}
+                                    </p>
+                                  )}
+                                </>
                               )}
                             </div>
 

@@ -8,7 +8,11 @@ const UpdateTask = () => {
   const loaderData = useLoaderData();
   const navigate = useNavigate();
 
-  const { register, handleSubmit } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       title: loaderData?.title,
       description: loaderData?.description,
@@ -17,10 +21,7 @@ const UpdateTask = () => {
 
   const onSubmit = async data => {
     const updateTime = new Date().toISOString();
-
     const Data = { ...data, updateTime };
-
-    console.log(Data);
 
     try {
       const response = await axios.patch(
@@ -28,7 +29,6 @@ const UpdateTask = () => {
         Data
       );
 
-      console.log('Task Updated:', response.data);
       if (response?.data?.modifiedCount > 0) {
         Swal.fire({
           position: 'top-end',
@@ -53,16 +53,29 @@ const UpdateTask = () => {
       <form className="flex flex-col " onSubmit={handleSubmit(onSubmit)}>
         <label className="text-sm font-bold">Title</label>
         <input
-          className="border p-2"
+          className={`border p-2 ${errors.title ? 'border-red-500' : ''}`}
           {...register('title', { required: true, maxLength: 50 })}
         />
+        {errors.title && (
+          <span className="text-red-500 text-xs">
+            Title is required, max 50 characters
+          </span>
+        )}
+
         <label className="text-sm font-bold mt-4">Description</label>
         <textarea
-          className="border p-2 h-44"
+          className={`border p-2 h-44 ${
+            errors.description ? 'border-red-500' : ''
+          }`}
           {...register('description', { required: true, maxLength: 200 })}
         />
+        {errors.description && (
+          <span className="text-red-500 text-xs">
+            Description is required, max 200 characters.
+          </span>
+        )}
 
-        <input className="btn btn-outline  text-teal-300 mt-10" type="submit" />
+        <input className="btn btn-outline text-teal-300 mt-10" type="submit" />
       </form>
     </div>
   );
