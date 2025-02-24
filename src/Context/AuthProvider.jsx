@@ -38,11 +38,15 @@ const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  const [openAddFrom, setOpenAddFrom] = useState(false);
+
   const authInfo = {
     LoginWithGoogle,
     LogOutUser,
     user,
     loading,
+    openAddFrom,
+    setOpenAddFrom,
   };
 
   return (

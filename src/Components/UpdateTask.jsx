@@ -25,7 +25,7 @@ const UpdateTask = () => {
 
     try {
       const response = await axios.patch(
-        `http://localhost:3000/tasks/${loaderData?._id}`,
+        `https://task-management-application-backend-beta.vercel.app/tasks/${loaderData?._id}`,
         Data
       );
 

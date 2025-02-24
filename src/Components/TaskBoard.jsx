@@ -1,17 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FilePenLine, Trash2 } from 'lucide-react';
+import { ClipboardPlus, FilePenLine, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { authContext } from '../Context/AuthProvider';
 
 const fetchTasks = async () => {
-  const res = await fetch('http://localhost:3000/tasks');
+  const res = await fetch(
+    'https://task-management-application-backend-beta.vercel.app/tasks'
+  );
   return res.json();
 };
 
 const TaskBoard = () => {
+  const { openAddFrom, setOpenAddFrom } = useContext(authContext);
+
+  console.log(openAddFrom);
   const queryClient = useQueryClient();
 
   // Fetch Data
@@ -34,14 +40,17 @@ const TaskBoard = () => {
   // **Update Task Mutation**
   const updateTaskMutation = useMutation({
     mutationFn: async ({ taskId, newCategory }) => {
-      return fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category: newCategory,
-          updateTime: new Date().toISOString(),
-        }),
-      });
+      return fetch(
+        `https://task-management-application-backend-beta.vercel.app/tasks/${taskId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            category: newCategory,
+            updateTime: new Date().toISOString(),
+          }),
+        }
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['tasks']);
@@ -117,7 +126,9 @@ const TaskBoard = () => {
     }).then(result => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:3000/tasks/${ID}`)
+          .delete(
+            `https://task-management-application-backend-beta.vercel.app/tasks/${ID}`
+          )
           .then(res => {
             console.log(res.data);
             if (res.data.deletedCount > 0) {
@@ -145,6 +156,10 @@ const TaskBoard = () => {
     formattedTasks[task.category].push(task);
   });
 
+  const handleAddTask = () => {
+    setOpenAddFrom(!openAddFrom);
+  };
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -158,8 +173,16 @@ const TaskBoard = () => {
                   columnId === 'done' ? 'md:col-span-2' : ''
                 }`}
               >
-                <h2 className="text-xl font-bold text-center border-b-2 border-white text-white capitalize mb-4 pb-1">
+                <h2 className="text-xl font-bold text-center border-b-2 border-white text-white capitalize mb-4 pb-1 flex justify-between items-center gap-3">
                   {columnId.replace(/([A-Z])/g, ' $1')}
+                  {columnId === 'todo' && (
+                    <button onClick={handleAddTask} className="relative group">
+                      <ClipboardPlus />
+                      <span className="absolute left-1/2 transform -translate-x-1/2 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-black duration-300 flex items-center justify-center">
+                        {openAddFrom ? 'Hide From' : 'Add Task'}
+                      </span>
+                    </button>
+                  )}
                 </h2>
                 <div>
                   {columnTasks.length === 0 ? (
@@ -178,7 +201,7 @@ const TaskBoard = () => {
                             {...provided.dragHandleProps}
                             className="p-3 my-2 bg-white shadow-md rounded-lg cursor-pointer relative"
                           >
-                            <h3 className="font-bold">{task.title}</h3>
+                            <h3 className="font-bold">{task.title} </h3>
                             <p className="text-xs mt-1 mr-5 md:mr-3">
                               {task.description}
                             </p>

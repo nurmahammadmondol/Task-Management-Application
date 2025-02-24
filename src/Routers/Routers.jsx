@@ -5,6 +5,7 @@ import Dashboard from '../Pages/Dashboard';
 import LoginPage from '../Pages/LoginPage';
 import HomePage from '../Pages/HomePage';
 import UpdateTask from '../Components/UpdateTask';
+import PrivetRouter from '../PrivetRoot/PrivetRouter';
 
 const Routers = createBrowserRouter([
   {
@@ -17,13 +18,19 @@ const Routers = createBrowserRouter([
       },
       {
         path: '/dashboard',
-        element: <Dashboard></Dashboard>,
+        element: (
+          <PrivetRouter>
+            <Dashboard></Dashboard>
+          </PrivetRouter>
+        ),
       },
       {
         path: '/updateTask/:id',
         element: <UpdateTask></UpdateTask>,
         loader: ({ params }) =>
-          fetch(`http://localhost:3000/tasks/${params.id}`),
+          fetch(
+            `https://task-management-application-backend-beta.vercel.app/tasks/${params.id}`
+          ),
       },
       {
         path: '/login',
