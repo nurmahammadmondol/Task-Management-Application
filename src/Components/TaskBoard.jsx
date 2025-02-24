@@ -1,6 +1,7 @@
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FilePenLine, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const fetchTasks = async () => {
   const res = await fetch('http://localhost:3000/tasks');
@@ -35,7 +36,13 @@ const TaskBoard = () => {
     },
   });
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center">
+        <small className="text-center mb-1">Loading...</small>
+        <progress className="progress w-56"></progress>
+      </div>
+    );
   if (error) return <p>Error fetching tasks</p>;
 
   const formattedTasks = { todo: [], inProgress: [], done: [] };
@@ -76,7 +83,7 @@ const TaskBoard = () => {
                   columnId === 'done' ? 'md:col-span-2' : ''
                 }`}
               >
-                <h2 className="text-lg font-semibold text-center capitalize mb-4">
+                <h2 className="text-xl font-bold text-center border-b-2 border-white text-white capitalize mb-4 pb-1">
                   {columnId.replace(/([A-Z])/g, ' $1')}
                 </h2>
                 <div>
@@ -111,11 +118,13 @@ const TaskBoard = () => {
                               )}
                             </div>
 
-                            <div className="absolute right-2 top-2 flex flex-col gap-3">
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-3">
                               {task?.category === 'inProgress' && (
-                                <button>
-                                  <FilePenLine />
-                                </button>
+                                <Link to={`/updateTask/${task._id}`}>
+                                  <button>
+                                    <FilePenLine />
+                                  </button>
+                                </Link>
                               )}
 
                               {task?.category !== 'todo' && (
