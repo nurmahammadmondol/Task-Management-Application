@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FilePenLine, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const fetchTasks = async () => {
   const res = await fetch('http://localhost:3000/tasks');
@@ -11,15 +13,23 @@ const fetchTasks = async () => {
 const TaskBoard = () => {
   const queryClient = useQueryClient();
 
+  // Fetch Data
   const {
     data: tasksData,
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: fetchTasks,
-  });
+  } = useQuery({ queryKey: ['tasks'], queryFn: fetchTasks });
 
+  // **Optimistic State**
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    if (tasksData) {
+      setTasks(tasksData);
+    }
+  }, [tasksData]);
+
+  // **Update Task Mutation**
   const updateTaskMutation = useMutation({
     mutationFn: async ({ taskId, newCategory }) => {
       return fetch(`http://localhost:3000/tasks/${taskId}`, {
@@ -45,11 +55,7 @@ const TaskBoard = () => {
     );
   if (error) return <p>Error fetching tasks</p>;
 
-  const formattedTasks = { todo: [], inProgress: [], done: [] };
-  tasksData.forEach(task => {
-    formattedTasks[task.category].push(task);
-  });
-
+  // **Handle Drag & Drop**
   const handleDragEnd = result => {
     if (!result.destination) return;
 
@@ -62,13 +68,67 @@ const TaskBoard = () => {
       return;
     }
 
-    const movedTask = formattedTasks[source.droppableId][source.index];
+    // Moved Task
+    const movedTask = tasks.find(task => task._id === result.draggableId);
+    const newCategory = destination.droppableId;
 
-    updateTaskMutation.mutate({
-      taskId: movedTask._id,
-      newCategory: destination.droppableId,
+    // **Optimistic UI Update**
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task._id === movedTask._id
+          ? {
+              ...task,
+              category: newCategory,
+              updateTime: new Date().toISOString(),
+            }
+          : task
+      )
+    );
+
+    // **Update Database**
+    updateTaskMutation.mutate(
+      { taskId: movedTask._id, newCategory },
+      {
+        onError: () => {
+          // যদি API call fail হয়, আগের UI restore করবো
+          setTasks(prevTasks =>
+            prevTasks.map(task =>
+              task._id === movedTask._id
+                ? { ...task, category: source.droppableId }
+                : task
+            )
+          );
+        },
+      }
+    );
+  };
+
+  const handleDeleteTask = ID => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(result => {
+      if (result.isConfirmed) {
+        console.log(ID);
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Your file has been deleted.',
+          icon: 'success',
+        });
+      }
     });
   };
+
+  // **Format Tasks**
+  const formattedTasks = { todo: [], inProgress: [], done: [] };
+  tasks.forEach(task => {
+    formattedTasks[task.category].push(task);
+  });
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -104,7 +164,9 @@ const TaskBoard = () => {
                             className="p-3 my-2 bg-white shadow-md rounded-lg cursor-pointer relative"
                           >
                             <h3 className="font-bold">{task.title}</h3>
-                            <p>{task.description}</p>
+                            <p className="text-xs mt-1 mr-5 md:mr-3">
+                              {task.description}
+                            </p>
                             <div className="mt-4">
                               <p className="text-sm text-gray-600">
                                 Created Tasks:{' '}
@@ -128,7 +190,9 @@ const TaskBoard = () => {
                               )}
 
                               {task?.category !== 'todo' && (
-                                <button>
+                                <button
+                                  onClick={() => handleDeleteTask(task._id)}
+                                >
                                   <Trash2 />
                                 </button>
                               )}
