@@ -45,7 +45,7 @@ const UpdateTask = () => {
   };
 
   return (
-    <div className="lg:w-2/3 mx-auto">
+    <div className="lg:w-2/3 mx-auto py-10">
       <h5 className="text-center text-2xl font-semibold  mb-5 md:mb-10">
         Update Task......
       </h5>

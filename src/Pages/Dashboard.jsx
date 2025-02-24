@@ -9,7 +9,7 @@ const Dashboard = () => {
   return (
     <div>
       {openAddFrom && (
-        <div className="-mt-10">
+        <div className="">
           <AddedTasks></AddedTasks>
         </div>
       )}

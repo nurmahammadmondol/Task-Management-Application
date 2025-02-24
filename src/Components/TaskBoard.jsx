@@ -162,7 +162,7 @@ const TaskBoard = () => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-11/12 mx-auto py-10">
         {Object.entries(formattedTasks).map(([columnId, columnTasks]) => (
           <Droppable key={columnId} droppableId={columnId}>
             {provided => (

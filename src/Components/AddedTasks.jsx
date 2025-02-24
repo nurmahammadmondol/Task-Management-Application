@@ -50,7 +50,7 @@ const AddedTasks = () => {
   };
 
   return (
-    <div className="mb-10">
+    <div className="mt-10 w-11/12 mx-auto">
       <h5 className="text-center text-2xl font-semibold text-teal-400 flex justify-center items-center gap-1">
         <span>Added a New Task......</span>
         <ClipboardPlus />

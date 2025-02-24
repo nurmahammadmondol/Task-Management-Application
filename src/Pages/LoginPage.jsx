@@ -28,7 +28,7 @@ const LoginPage = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
-      className="-my-10 py-14"
+      className="-my-10 py-16"
     >
       <div className="card-body md:w-1/2 mx-auto border">
         <div className="h-[400px]">
