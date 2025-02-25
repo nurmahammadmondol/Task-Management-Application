@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { authContext } from '../Context/AuthProvider';
+import Logo from '../assets/Image/Things.png';
 
 const Navbar = () => {
   const { user, LogOutUser } = useContext(authContext);
@@ -21,13 +22,14 @@ const Navbar = () => {
       <div className="navbar-start">
         <a
           href="/dashboard"
-          className="btn btn-ghost text-xl md:text-2xl font-bold"
+          className="btn btn-ghost text-xs md:text-2xl font-bold"
         >
+          <img className="w-7 md:w-9 h-6 md:h-8" src={Logo} alt="" />
           Task Management
         </a>
       </div>
 
-      <div className="navbar-end flex items-center gap-5">
+      <div className="navbar-end flex items-center gap-1 md:gap-5">
         <div>
           <small className="text-xs">{user?.displayName}</small>
         </div>
